@@ -4,21 +4,20 @@ from fastapi.templating import Jinja2Templates
 from fastapi.exceptions import RequestValidationError
 from app.database import get_engine
 from app import models
-from app.routers import users, calculations
+from app.routers import users, calculations, auth
 import uvicorn
 import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Module 12 - Calculations API")
+app = FastAPI(title="Module 13 - JWT Auth API")
 
-# Create all tables
 models.Base.metadata.create_all(bind=get_engine())
 
-# Register routers
 app.include_router(users.router)
 app.include_router(calculations.router)
+app.include_router(auth.router)
 
 templates = Jinja2Templates(directory="templates")
 
@@ -44,6 +43,16 @@ async def health_check():
 @app.get("/")
 async def read_root(request: Request):
     return templates.TemplateResponse(request=request, name="index.html")
+
+
+@app.get("/register")
+async def register_page(request: Request):
+    return templates.TemplateResponse(request=request, name="register.html")
+
+
+@app.get("/login")
+async def login_page(request: Request):
+    return templates.TemplateResponse(request=request, name="login.html")
 
 
 if __name__ == "__main__":
